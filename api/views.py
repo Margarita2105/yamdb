@@ -4,10 +4,15 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
-from .models import Review, Comment
-from .permission import IsOwnerOrReadOnly
-from .serializers import ReviewSerializer, CommentSerializer
+from .models import Review, Comment, Title
+from .permissions import IsOwnerOrReadOnly
+from .serializers import ReviewSerializer, CommentSerializer, TitleSerializer
 
+
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = [IsOwnerOrReadOnly]
 
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
@@ -16,7 +21,12 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         title = get_object_or_404(Title, id=self.kwargs['title_id'])
+        if request.method == 'POST' and Review.objects.filter(user=self.request.user, title=title).exists():
+            raise ValidationError('Вы уже поставили оценку')
         serializer.save(author=self.request.user, title=title)
+        agg_score = Review.objects.filter(title=title).agregate(Avg('score'))
+        title.rating = agg_score['score__avg']
+        title.save(update_fields=['rating'])
 
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['title_id'])
@@ -35,4 +45,3 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])
         return Comment.objects.filter(review=review)
-        
