@@ -4,12 +4,28 @@ from django.db import models
 
 User = get_user_model()
 
+class Title(models.Model):
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="titles")
+    text = models.TextField()
 
 class Review(models.Model):
+    scores = (
+        (1, 1),
+        (2, 2),
+        (3, 3),
+        (4, 4),
+        (5, 5),
+        (6, 6),
+        (7, 7),
+        (8, 8),
+        (9, 9),
+        (10, 10)
+    )
     text = models.TextField()
     title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="reviews")
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
+    score = models.IntegerField(choices=scores)
     
     def __str__(self):
         return self.text
