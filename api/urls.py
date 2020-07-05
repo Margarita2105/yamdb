@@ -15,13 +15,9 @@ Including another URLconf
 """
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-#from rest_framework_simplejwt.views import (
-#    TokenObtainPairView,
-#    TokenRefreshView,
-#)
+from rest_framework_simplejwt.views import (TokenObtainPairView,TokenRefreshView,)
 
-from .views import ReviewViewSet, CommentViewSet
-
+from .views import ReviewViewSet, CommentViewSet, UserRegistrationViewSet
 
 router = DefaultRouter()
 router.register(r'titles/(?P<title_id>\d+)/reviews', ReviewViewSet)
@@ -29,6 +25,8 @@ router.register(r'reviews/(?P<review_id>\d+)/comments', CommentViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    #path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    #path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('users/', include('users.urls')),
+    path('auth/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('auth/email/', UserRegistrationViewSet.as_view()),
 ]

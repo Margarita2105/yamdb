@@ -1,5 +1,5 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, generics, permissions
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import ListCreateAPIView, get_object_or_404
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -7,6 +7,8 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Review, Comment, Title
 from .permissions import IsOwnerOrReadOnly
 from .serializers import ReviewSerializer, CommentSerializer, TitleSerializer
+from users.models import User
+from users.serializers import UserSerializer
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -45,3 +47,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         review = get_object_or_404(Review, id=self.kwargs['review_id'])
         return Comment.objects.filter(review=review)
+
+
+class UserRegistrationViewSet(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny,]
