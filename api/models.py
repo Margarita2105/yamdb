@@ -7,6 +7,7 @@ User = get_user_model()
 class Title(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="titles")
     text = models.TextField()
+    rating = models.IntegerField(default=None)
 
 class Review(models.Model):
     scores = (
@@ -25,7 +26,7 @@ class Review(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE, related_name="reviews")
     pub_date = models.DateTimeField("Дата публикации", auto_now_add=True)
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews")
-    score = models.IntegerField(choices=scores)
+    score = models.IntegerField(choices=scores)#max_value=10, min_value=1)
     
     def __str__(self):
         return self.text
